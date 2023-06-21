@@ -8,7 +8,10 @@ import MicIcon from '@material-ui/icons/Mic';
 import { useParams } from 'react-router-dom';
 import db from './firebase'
 import firebase from 'firebase/compat/app'
-import { useStateValue } from './StateProvider'
+import { useStateValue } from './StateProvider';
+
+
+
 
 const ROW_CHARACTER_LIMIT = 40;
 
@@ -20,6 +23,7 @@ function Chat() {
     const [seed,setSeed] = useState("");
     const [messages,setMessages] = useState([]);
     const [{ user },dispatch] = useStateValue();
+
 
 
     useEffect(() => {
@@ -55,9 +59,11 @@ function Chat() {
 
     const sendMessage = (e)=>{
         e.preventDefault();
-        console.log("you typed >>>",input);
+        //console.log("you typed >>>",input);
 
-        console.log(user.displayName);
+        //console.log(user.displayName);
+        const currentUser = user;
+        const { photoURL } = user;
         if (user.displayName && input.trim() !== "") {
           db.collection("rooms")
             .doc(roomId)
@@ -66,6 +72,7 @@ function Chat() {
               message: input,
               name: user.displayName,
               timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+              userPhotoURL: photoURL,
             })
             .then(() => {
               setInput("");
@@ -142,7 +149,8 @@ function Chat() {
                   className={`chat__message ${message.name===user.displayName && "chat__reciever"}`}
                   key={message.id}
                 >
-                <span className='chat__name'>{message.name}</span>   
+                  <span className='chat__name'>{message.name}</span>
+   
                 <div className="chat__messageContent">
                 {getRowsFromMessage(message.message).map((row, index) => (
                 <div key={index} className="chat__messageRow">
@@ -167,7 +175,8 @@ function Chat() {
         </div>
 
         <div className='chat__footer'>
-           <InsertEmoticon />
+           
+           <InsertEmoticon/>
            <form>
             <input 
               value={input}

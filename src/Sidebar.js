@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './Sidebar.css';
-import DonutLargeIcon from "@material-ui/icons/DonutLarge";
+import LogoutIcon from '@mui/icons-material/Logout';
 import { Avatar, IconButton } from "@material-ui/core";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import ChatIcon from "@material-ui/icons/Chat";
@@ -8,12 +8,21 @@ import {SearchOutlined} from "@material-ui/icons";
 import SidebarChat from './SidebarChat';
 import db from './firebase';
 import { useStateValue } from './StateProvider';
+import firebase from 'firebase/compat/app';
+import { actionTypes } from './reducer';
+import { useNavigate } from 'react-router-dom';
+import Tooltip from '@mui/material/Tooltip';
+
+
+
 
 
 function Sidebar() {
 
   const [rooms,setRooms] = useState([]);
   const [{user},dispatch] = useStateValue();
+  const navigate=useNavigate();
+
 
   useEffect(()=>{
       const unsubscribe = db.collection("rooms")
@@ -31,6 +40,24 @@ function Sidebar() {
       }
   },[]);
 
+
+  const signOut = () => {
+    firebase
+      .auth()
+      .signOut()
+      .then(() => {
+        dispatch({
+          type: actionTypes.SET_USER,
+          user: null,
+        });
+        navigate('/');
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+
   
 
   return (
@@ -39,9 +66,11 @@ function Sidebar() {
         <Avatar src={user?.photoURL} />
 
         <div className='sidebar__headerRight'>
-          <IconButton>
-            <DonutLargeIcon />
+         <Tooltip title="Logout">
+          <IconButton onClick={signOut}>
+            <LogoutIcon />
           </IconButton>
+         </Tooltip>
           <IconButton>
             <ChatIcon />
           </IconButton>
